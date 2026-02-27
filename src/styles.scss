@@ -1,1 +1,4 @@
-/* You can add global styles to this file, and also import other style files */
+@use './assets/scss/theme';
+@use './assets/scss/primeng-overrides';
+@use './assets/scss/form';
+@use "@fortawesome/fontawesome-free/css/all.min.css";

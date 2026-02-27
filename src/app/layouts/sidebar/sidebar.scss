@@ -1,0 +1,16 @@
+@reference "tailwindcss";
+
+.nav-item {
+  @apply flex gap-2 items-center p-2 rounded text-sm cursor-pointer;
+
+  &.active {
+    color: #04406e;
+    font-weight: bold;
+    background-color: #FFFFFF !important;
+    @apply shadow-sm;
+  }
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.07);
+  }
+}

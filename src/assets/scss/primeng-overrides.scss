@@ -1,0 +1,30 @@
+.p-datatable-thead > tr:nth-child(1) > th {
+  background-color: #04406e !important;
+  color: #fff !important;
+}
+
+p-sorticon svg {
+  color: #fff !important;
+}
+
+//.p-datatable-thead > tr > th {
+//  color: #a5a5a5 !important;
+//}
+
+//p-table {
+//  .p-datatable-frozen-column[alignfrozen="right"] {
+//    border-left: 1px solid lightgray;
+//  }
+//}
+
+.p-breadcrumb {
+  background: transparent !important;
+}
+
+.p-skeleton {
+  background: rgba(4, 64, 110, 0.05) !important;
+
+  &::after {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0, rgba(255, 255, 255, 0.4) 50%, rgba(255, 255, 255, 0)) !important;
+  }
+}

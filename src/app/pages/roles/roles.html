@@ -1,0 +1,70 @@
+<div>
+    <p-card>
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-2xl font-bold text-gray-700">Roles & Permissions</h2>
+            <app-button (onClick)="openNewRole()" severity="secondary" label="Add Role" icon="fa fa-add"></app-button>
+        </div>
+
+        <div class="flex justify-between items-center mb-3">
+            <app-search-input placeholder="Search roles..." (searchChange)="onSearch($event)"></app-search-input>
+        </div>
+
+        <p-table [value]="roles()" [lazy]="true"
+                 (onLazyLoad)="onLazyLoad($event)"
+                 [rows]="rows()" [totalRecords]="totalRecords()" [paginator]="true"
+                 [rowsPerPageOptions]="[10, 20, 50]"
+                 [loading]="loading()" [first]="first()" class="p-datatable-sm">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pSortableColumn="name">
+                        <div class="flex items-center gap-2">Role Name <p-sortIcon field="name" /></div>
+                    </th>
+                    <th>Permissions</th>
+                    <th style="width: 5rem">Actions</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-userRole>
+                <tr>
+                    <td class="font-bold">{{userRole.name}}</td>
+                    <td>
+                      <app-tag-list [labels]="userRole.permissions | pluck: 'name'"></app-tag-list>
+                    </td>
+                    <td>
+                        <app-button icon="fa fa-pencil" [btnClass]="'rounded-full w-10 h-10'" [outline]="true" severity="secondary" (onClick)="editRole(userRole)" tooltipPosition="left" pTooltip="Edit"></app-button>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </p-card>
+</div>
+
+
+<p-dialog [(visible)]="showRoleDialog" [header]="isEditRole() ? 'Edit Role' : 'New Role'" [modal]="true" [style]="{width: '450px'}" styleClass="p-fluid">
+    <ng-template pTemplate="content">
+        <form [formGroup]="roleForm">
+            <div class="field mb-4">
+                <label for="roleName" class="font-bold block mb-2 required">Role Name</label>
+                <input type="text" pInputText id="roleName" formControlName="name" autofocus
+                       [class.ng-dirty]="roleForm.get('name')?.invalid && (roleForm.get('name')?.dirty || roleForm.get('name')?.touched)" />
+                @if (roleForm.get('name')?.invalid && (roleForm.get('name')?.dirty || roleForm.get('name')?.touched)) {
+                    <div class="text-red-500">Role name is required.</div>
+                }
+            </div>
+            <div class="field mb-4">
+                <label class="font-bold block mb-2 required">Permissions</label>
+                <p-multiselect appendTo="body" [options]="permissions()" formControlName="permissions"
+                               optionLabel="name" placeholder="Select Permissions" display="chip"
+                               [class.ng-dirty]="roleForm.get('permissions')?.invalid && (roleForm.get('permissions')?.dirty || roleForm.get('permissions')?.touched)"></p-multiselect>
+                @if (roleForm.get('permissions')?.invalid && (roleForm.get('permissions')?.dirty || roleForm.get('permissions')?.touched)) {
+                    <div class="text-red-500">At least one permission is required.</div>
+                }
+            </div>
+        </form>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <app-button label="Save" icon="fa fa-save" (onClick)="saveRole()" [loading]="isSaving()" [disabled]="roleForm.invalid && (roleForm.dirty || roleForm.touched)"></app-button>
+    </ng-template>
+</p-dialog>
+
+<p-toast></p-toast>

@@ -1,0 +1,19 @@
+@reference "tailwindcss";
+
+.form-group {
+  @apply flex flex-col gap-1;
+  label {
+    @apply text-gray-600 text-sm;
+  }
+}
+
+
+formly-field {
+  @apply block;
+  input {
+    @apply w-full;
+  }
+  p-select {
+    @apply w-full;
+  }
+}

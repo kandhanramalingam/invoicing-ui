@@ -1,0 +1,43 @@
+<p-toast/>
+<div class="bg-gray-50 h-full">
+  <div class="flex justify-center h-full items-center">
+    <form [formGroup]="loginForm" (ngSubmit)="login()" class="flex gap-4 flex-col">
+      <div class="text-center space-y-5">
+        <div>
+          <img id="app-logo" src="assets/img/logo.jpg" alt="logo"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="required">Email</label>
+        <input formControlName="email" pInputText type="text">
+        <app-form-error
+          [control]="email"
+          [formSubmitted]="formSubmitted"
+          [messages]="{'required': 'Email is required'}"
+        ></app-form-error>
+      </div>
+      <div class="form-group">
+        <label class="required">Password</label>
+        <input formControlName="password" pInputText type="password">
+        <app-form-error
+          [control]="password"
+          [formSubmitted]="formSubmitted"
+          [messages]="{'required': 'Password is required'}"
+        ></app-form-error>
+      </div>
+      <!--            <div class="text-right">-->
+      <!--                <span routerLink="/forgot-password" class="text-sm text-blue-700 font-semibold cursor-pointer">{{"login.forgot-password" | translate}}</span>-->
+      <!--            </div>-->
+      <button [disabled]="loading()" type="submit" class="btn-primary !py-3 flex gap-2 items-center justify-center">
+        @if (loading()) {
+          <p-progress-spinner ariaLabel="loading" [style]="{width: '20px', height: '20px', margin: 'unset'}"
+                              strokeWidth="10"/>
+        } @else {
+          <i class="fa fa-right-to-bracket"></i>
+        }
+        <span>Login</span>
+      </button>
+      <p-breadcrumb styleClass="text-sm !p-2" [home]="home" [model]="items()"/>
+    </form>
+  </div>
+</div>

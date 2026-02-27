@@ -1,0 +1,9 @@
+@if (control()?.invalid && formSubmitted()) {
+    <div class="flex gap-2 flex-col">
+        @for (error of errors; track error) {
+            @if (control()?.hasError(error)) {
+                <span class="text-red-500 text-sm">{{messages()[error]}}</span>
+            }
+        }
+    </div>
+}

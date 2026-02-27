@@ -1,0 +1,178 @@
+@use "sass:map";
+@use "sass:math";
+@use "sass:color";
+
+// --------------------------------------------------
+// Existing utility
+// --------------------------------------------------
+@mixin half-border($color) {
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    top: 25px;
+    width: 75%;
+    border-bottom: 2px solid #{$color};
+  }
+}
+
+// --------------------------------------------------
+// Color contrast helpers
+// --------------------------------------------------
+@function _srgb-channel($c) {
+  $c: calc($c / 255);
+  $d: calc(($c + 0.055) / 1.055);
+
+  @if $c <= 0.03928 {
+    @return calc($c / 12.92);
+  } @else {
+    @return math.pow($d, 2.4);
+  }
+}
+
+@function luminance($color) {
+  $r: _srgb-channel(color.channel($color, 'red', $space: rgb));
+  $g: _srgb-channel(color.channel($color, 'green', $space: rgb));
+  $b: _srgb-channel(color.channel($color, 'blue', $space: rgb));
+
+  @return 0.2126 * $r + 0.7152 * $g + 0.0722 * $b;
+}
+
+@function contrast-ratio($a, $b) {
+  $la: luminance($a);
+  $lb: luminance($b);
+
+  $l1: $la;
+  $l2: $lb;
+
+  @if $lb > $la {
+    $l1: $lb;
+    $l2: $la;
+  }
+
+  @return calc(($l1 + 0.05) / ($l2 + 0.05));
+}
+
+@function is-contrast-sufficient($bg, $text, $min: 4.5) {
+  @return contrast-ratio($bg, $text) >= $min;
+}
+
+@function contrast-color($bg, $light: #ffffff, $dark: #000000) {
+  $cr-light: contrast-ratio($bg, $light);
+  $cr-dark: contrast-ratio($bg, $dark);
+
+  @if $cr-light > $cr-dark {
+    @return $light;
+  } @else {
+    @return $dark;
+  }
+}
+
+@function ensure-text-contrast($bg, $text) {
+  // Only auto-correct when text is missing or equals the background
+  @if $text == null or $text == $bg {
+    @return contrast-color($bg);
+  }
+
+  @return $text;
+}
+
+// --------------------------------------------------
+// Base primitive for filled button
+// --------------------------------------------------
+@mixin button-filled($bg, $text, $hover-bg, $hover-text) {
+  background-color: #{$bg};
+  color: #{$text};
+  @apply rounded px-3 py-2 cursor-pointer text-sm;
+
+  &:hover {
+    background-color: #{$hover-bg};
+    color: #{$hover-text} !important;
+  }
+}
+
+// --------------------------------------------------
+// Base primitive for outline button
+// --------------------------------------------------
+@mixin button-outline-base(
+  $color,
+  $hover-bg,
+  $hover-text,
+  $border-color: null
+) {
+  $bc: $color;
+  @if $border-color != null {
+    $bc: $border-color;
+  }
+
+  border: 1px solid #{$bc};
+  color: #{$color};
+  background-color: white;
+  @apply rounded px-3 py-2 cursor-pointer text-sm;
+
+  &:hover {
+    background-color: #{$hover-bg};
+    color: #{$hover-text};
+  }
+}
+
+// --------------------------------------------------
+// Define one pair of variants for a given theme name
+// $cfg map keys: bg, text, hover-bg, hover-text, border(optional)
+// --------------------------------------------------
+@mixin define-button-variant($name, $cfg) {
+  $bg: map.get($cfg, bg);
+  $text: map.get($cfg, text);
+  $hover-bg: map.get($cfg, hover-bg);
+  $hover-text: map.get($cfg, hover-text);
+  $border: map.get($cfg, border);
+
+  // Ensure safe readable text for filled buttons
+  $safe-text: ensure-text-contrast($bg, $text);
+
+  $safe-hover-text: $hover-text;
+  @if $hover-text == null or $hover-text == $hover-bg {
+    $safe-hover-text: contrast-color($hover-bg);
+  }
+
+  .btn-#{$name} {
+    @include button-filled($bg, $safe-text, $hover-bg, $safe-hover-text);
+  }
+
+  // Outline variants
+  $outline-border: $bg;
+  @if $border != null {
+    $outline-border: $border;
+  }
+
+  $outline-text: $text;
+  @if $text == null or $text == #ffffff {
+    $outline-text: $outline-border;
+  }
+
+  $outline-hover-text: $hover-text;
+  @if $hover-text == null or $hover-text == $hover-bg {
+    $outline-hover-text: contrast-color($hover-bg);
+  }
+
+  .btn-#{$name}-outline {
+    @include button-outline-base(
+                    $outline-text,
+                    $hover-bg,
+                    $outline-hover-text,
+                    $outline-border
+    );
+  }
+}
+
+// --------------------------------------------------
+// Generate multiple variants from a map
+// --------------------------------------------------
+@mixin generate-button-variants($themes) {
+  @each $name, $cfg in $themes {
+    @include define-button-variant($name, $cfg);
+  }
+}

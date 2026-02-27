@@ -1,0 +1,109 @@
+<div>
+    <p-card>
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-2xl font-bold text-gray-700">Manage Users</h2>
+            @if (jwtService.hasPermission('user-write')) {
+                <app-button label="Add User" icon="fa fa-add" severity="secondary" (onClick)="openNewUser()"></app-button>
+            }
+        </div>
+
+        <div class="flex justify-between items-center mb-3">
+            <app-search-input placeholder="Search users..." (searchChange)="onSearch($event)"></app-search-input>
+        </div>
+
+        <p-table [value]="users()" [lazy]="true" (onLazyLoad)="onLazyLoad($event)"
+                 [rows]="rows()" [totalRecords]="totalRecords()" [paginator]="true"
+                 [rowsPerPageOptions]="[10, 20, 50]"
+                 [loading]="loading()" [first]="first()" class="p-datatable-sm">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pSortableColumn="fullName">
+                        <div class="flex items-center gap-2">User <p-sortIcon field="fullName" /></div>
+                    </th>
+                    <th>Role</th>
+                    <th pSortableColumn="active">
+                        <div class="flex items-center gap-2">Status <p-sortIcon field="active" /></div>
+                    </th>
+                    <th style="width: 8rem">Actions</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-user>
+                <tr>
+                    <td>
+                        {{user.fullName}}
+                        <div class="text-sm text-gray-500">{{user.email}}</div>
+                    </td>
+                    <td>
+                        <app-tag-list [labels]="user.roles | pluck: 'name'" [header]="'Roles for ' + user.fullName"></app-tag-list>
+                    </td>
+                    <td>
+                        <p-tag [value]="user.active ? 'Active' : 'Inactive'" [severity]="user.active ? 'success' : 'danger'"></p-tag>
+                    </td>
+                    <td>
+                        <div class="flex gap-2">
+                            @if (jwtService.hasPermission('user-write')) {
+                                <app-button icon="fa fa-pencil" [btnClass]="'rounded-full w-10 h-10'" [outline]="true" severity="secondary" (onClick)="editUser(user)" tooltipPosition="left" pTooltip="Edit"></app-button>
+                                <app-button icon="fa fa-trash" [btnClass]="'rounded-full w-10 h-10'" [outline]="true" severity="danger" (onClick)="deleteUser(user)" tooltipPosition="left" pTooltip="Delete"></app-button>
+                            }
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template #emptymessage>
+                <tr>
+                    <td colspan="4">
+                        <app-no-data message="No users found."></app-no-data>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </p-card>
+</div>
+
+<!-- User Drawer -->
+<p-drawer [(visible)]="showUserDialog" position="right" [header]="isEditUser() ? 'Edit User' : 'New User'" [modal]="true" [style]="{width: '450px'}">
+    <form [formGroup]="userForm" (ngSubmit)="saveUser()" class="flex flex-col gap-4 h-full">
+        <div class="flex-1 overflow-y-auto p-1 flex flex-col gap-4">
+            <div class="field">
+                <label for="fullName" class="font-bold block mb-2 required">Full Name</label>
+                <input type="text" pInputText id="fullName" formControlName="fullName" placeholder="Enter full name" />
+                @if (userForm.get('fullName')?.touched && userForm.get('fullName')?.invalid) {
+                    <small class="text-red-500">
+                        @if (userForm.get('fullName')?.errors?.['required']) { Full name is required. }
+                        @if (userForm.get('fullName')?.errors?.['minlength']) { Full name must be at least 3 characters. }
+                    </small>
+                }
+            </div>
+            <div class="field">
+                <label for="email" class="font-bold block mb-2 required">Email</label>
+                <input type="email" pInputText id="email" formControlName="email" placeholder="Enter email" />
+                @if (userForm.get('email')?.touched && userForm.get('email')?.invalid) {
+                    <small class="text-red-500">
+                        @if (userForm.get('email')?.errors?.['required']) { Email is required. }
+                        @if (userForm.get('email')?.errors?.['email']) { Please enter a valid email. }
+                    </small>
+                }
+            </div>
+            <div class="field">
+                <label for="role" class="font-bold block mb-2 required">Roles</label>
+                <p-multiselect [options]="roles()" formControlName="roleIds" optionLabel="name" optionValue="id" placeholder="Select Roles" display="chip" styleClass="w-full" appendTo="body"></p-multiselect>
+                @if (userForm.get('roleIds')?.touched && userForm.get('roleIds')?.invalid) {
+                    <small class="text-red-500">At least one role is required.</small>
+                }
+            </div>
+            <div class="field">
+                <label for="status" class="font-bold block mb-2 required">Status</label>
+                <p-select [options]="[{label: 'Active', value: 1}, {label: 'Inactive', value: 0}]" formControlName="active" optionLabel="label" optionValue="value" placeholder="Select a Status"></p-select>
+                @if (userForm.get('active')?.touched && userForm.get('active')?.invalid) {
+                    <small class="text-red-500">Status is required.</small>
+                }
+            </div>
+        </div>
+        <div class="flex justify-end gap-2 pt-4 border-t">
+            <app-button type="submit" label="Save" icon="fa fa-save" [loading]="isSaving()"></app-button>
+        </div>
+    </form>
+</p-drawer>
+
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+<p-toast></p-toast>

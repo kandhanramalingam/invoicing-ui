@@ -1,0 +1,16 @@
+<button
+        [type]="type() === 'submit' ? 'submit' : 'button'"
+        [class]="buttonClass"
+        [disabled]="disabled() || loading()"
+        (click)="handleOnClick($event)">
+    @if (loading()) {
+        <i class="fa fa-sync fa-spin"></i>
+    } @else if (icon()) {
+        <i [class]="icon()"></i>
+    }
+    @if (label()) {
+        <span>{{ label() }}</span>
+    }
+
+    <ng-content></ng-content>
+</button>

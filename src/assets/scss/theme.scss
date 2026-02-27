@@ -1,0 +1,105 @@
+@use "./mixins" as *;
+
+html, body { height: 100%; }
+body { margin: 0; }
+
+.bg-app {
+  background-color: #04406e;
+}
+.text-info {
+  color: #00adef !important;
+}
+.text-app {
+  color: #04406e;
+}
+.bg-light {
+  background-color: #F8F8FA;
+}
+
+.text-app-secondary {
+  color: #fbbc40;
+}
+
+.border-half-white {
+  @include half-border(#FFFFFF);
+}
+
+.border-left {
+  position: relative;
+  padding-left: 40px;
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 30px;
+    border: 3px solid #714f17;
+  }
+}
+
+.required {
+  &:after {
+    content: '*';
+    color: red;
+    margin-left: 4px;
+  }
+}
+
+// Button theme configuration and generation moved from styles.scss
+$button-themes: (
+  primary: (
+    bg: #04406e,
+    text: #ffffff,
+    hover-bg: #106fa3,
+    hover-text: #ffffff,
+    border: #04406e,
+  ),
+  cancel: (
+    bg: #ececec,
+    text: #343a40,
+    hover-bg: #dbdbdb,
+    hover-text: #343a40,
+    border: #343a40
+  ),
+  secondary: (
+    bg: #d49535,
+    text: #fff,
+    hover-text: #fff,
+    hover-bg: #c68c34,
+  ),
+  danger: (
+    bg: #ef4444,
+    text: #ffffff,
+    hover-bg: #dc2626,
+    hover-text: #ffffff,
+    border: #ef4444
+  ),
+  success: (
+    bg: #22c55e,
+    text: #ffffff,
+    hover-bg: #16a34a,
+    hover-text: #ffffff,
+    border: #22c55e
+  )
+);
+
+@include generate-button-variants($button-themes);
+
+
+
+.a-red {
+  @apply text-red-700 bg-red-200;
+}
+.a-green {
+  @apply text-green-700 bg-green-200;
+}
+.a-yellow {
+  @apply text-yellow-700 bg-yellow-200;
+}
+.a-blue {
+  @apply text-blue-700 bg-blue-200;
+}
+.a-purple {
+  @apply text-purple-600 bg-purple-200;
+}
