@@ -1,4 +1,4 @@
-import {Component, OnInit, inject, signal} from '@angular/core';
+import {Component, inject, signal} from '@angular/core';
 import {TableModule} from 'primeng/table';
 import {Tag} from 'primeng/tag';
 import {Header} from '@shared/components/header/header';
@@ -11,9 +11,9 @@ import {Event} from '@shared/interfaces/event.interface';
 import {ConfirmationService, MessageService} from 'primeng/api';
 import {ConfirmDialogModule} from 'primeng/confirmdialog';
 import {ToastModule} from 'primeng/toast';
-import {DatePipe} from '@angular/common';
 import {SearchInput} from '@shared/components/search-input/search-input';
 import {Tooltip} from 'primeng/tooltip';
+import {RouterLink} from '@angular/router';
 
 @Component({
   selector: 'app-event-management',
@@ -27,21 +27,22 @@ import {Tooltip} from 'primeng/tooltip';
     NoData,
     ConfirmDialogModule,
     ToastModule,
-    DatePipe,
     SearchInput,
-    Tooltip
+    Tooltip,
+    RouterLink
   ],
   providers: [ConfirmationService, MessageService],
   templateUrl: './event-management.html',
   styleUrl: './event-management.scss',
 })
-export class EventManagement implements OnInit {
+export class EventManagement {
   private eventService = inject(EventManagementService);
   private confirmationService = inject(ConfirmationService);
   private messageService = inject(MessageService);
 
   events = signal<Event[]>([]);
   loading = signal<boolean>(false);
+  formLoading = signal<boolean>(false);
   showEventForm = false;
   isEditMode = signal<boolean>(false);
   formData = signal<Record<string, any>>({});
@@ -52,10 +53,6 @@ export class EventManagement implements OnInit {
   searchQuery = signal<string>('');
   sortField = signal<string>('');
   sortOrder = signal<number>(1);
-
-  ngOnInit() {
-    this.loadEvents();
-  }
 
   loadEvents() {
     this.loading.set(true);
@@ -130,6 +127,7 @@ export class EventManagement implements OnInit {
   }
 
   onFormSubmit(model: any) {
+    this.formLoading.set(true);
     const action = this.isEditMode()
       ? this.eventService.updateEvent(model.id, model)
       : this.eventService.createEvent(model);
@@ -138,6 +136,7 @@ export class EventManagement implements OnInit {
       next: () => {
         this.loadEvents();
         this.showEventForm = false;
+        this.formLoading.set(false);
         this.messageService.add({
           severity: 'success',
           summary: 'Successful',
@@ -146,6 +145,7 @@ export class EventManagement implements OnInit {
         });
       },
       error: (err) => {
+        this.formLoading.set(false);
         if (err.status !== 403) {
           this.messageService.add({severity: 'error', summary: 'Error', detail: err.error?.message || 'Failed to save event'});
         }
@@ -157,7 +157,6 @@ export class EventManagement implements OnInit {
     switch (status) {
       case 'Finalized': return 'success';
       case 'Processing': return 'warn';
-      case 'Uploaded': return 'info';
       default: return 'secondary';
     }
   }

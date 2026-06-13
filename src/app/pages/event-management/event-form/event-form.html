@@ -1,8 +1,8 @@
 <form [formGroup]="form" (ngSubmit)="onSubmit.emit(model)" class="space-y-6">
   <div>
-    <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+    <formly-form [form]="form" [fields]="fields" [model]="model" [options]="options"></formly-form>
   </div>
   <div class="flex justify-end px-4 mb-10">
-    <app-button [label]="isEdit() ? 'Update' : 'Create'" type="submit" icon="fa fa-save" severity="secondary"></app-button>
+    <app-button [label]="isEdit() ? 'Update' : 'Create'" type="submit" icon="fa fa-save" severity="secondary" [loading]="loading()"></app-button>
   </div>
 </form>

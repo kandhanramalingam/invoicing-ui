@@ -1,10 +1,13 @@
-<div class="bg-light w-52 h-full">
+<div class="bg-light w-52 h-full flex flex-col">
   <section class="flex gap-1 items-center border-b py-3 px-2 border-b-gray-300">
     <img src="assets/img/logo.jpg" class="h-7" alt="logo">
     <span class="font-bold text-base text-app">Wildlife Invoicing</span>
   </section>
-  <nav class="p-2 flex flex-col gap-2">
-    <div routerLink="/admin/events"  routerLinkActive="active" class="nav-item active">
+  <div class="p-2 border-b border-b-gray-300">
+    <p-select [options]="categories" [(ngModel)]="selectedCategory" (onChange)="onCategoryChange($event)" class="w-full" styleClass="w-full"></p-select>
+  </div>
+  <nav class="p-2 flex flex-col gap-2 flex-1">
+    <div routerLink="/admin/events"  routerLinkActive="active" class="nav-item">
       <i class="fa fa-broom"></i>
       <span>Events</span>
     </div>
@@ -17,4 +20,11 @@
       <span>Roles</span>
     </div>
   </nav>
+
+  <div class="p-2 border-t border-t-gray-300">
+    <div (click)="logout()" class="nav-item cursor-pointer text-red-600 hover:bg-red-50">
+      <i class="fa fa-sign-out-alt"></i>
+      <span>Logout</span>
+    </div>
+  </div>
 </div>

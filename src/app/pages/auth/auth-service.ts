@@ -14,4 +14,9 @@ export class AuthService {
     login(data: LoginData) {
         return this.http.post<ResponseDto<LoginResponseValue>>(`${this.baseUrl}/auth/login`, data);
     }
+
+    logout() {
+        localStorage.clear();
+        sessionStorage.clear();
+    }
 }

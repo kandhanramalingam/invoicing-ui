@@ -1,0 +1,78 @@
+<app-header [label]="'Sellers for ' + (event()?.auction?.nameOfAuction || 'Event')" styleClass="mb-4" [showBackButton]="true">
+  <div class="flex items-center gap-4">
+    <div class="flex items-center gap-2 text-sm font-normal text-gray-600">
+      <span class="bg-gray-100 px-2 py-1 rounded">Auction ID: {{ event()?.auctionId }}</span>
+    </div>
+  </div>
+</app-header>
+
+<p-table [value]="sellers()" [loading]="loading()" size="small"
+         [lazy]="true" (onLazyLoad)="onLazyLoad($event)"
+         [rows]="rows()" [totalRecords]="totalRecords()" [paginator]="true"
+         [rowsPerPageOptions]="[10, 20, 50]"
+         [first]="first()"
+         [showCurrentPageReport]="true"
+         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
+  <ng-template #header>
+    <tr>
+      <th>
+        <div class="flex items-center gap-2">Seller Name</div>
+      </th>
+      <th>
+        <div class="flex items-center gap-2">Company</div>
+      </th>
+      <th>
+        <div class="flex items-center gap-2">Contact Info</div>
+      </th>
+      <th>
+        <div class="flex items-center gap-2">Commission %</div>
+      </th>
+      <th class="w-1">Actions</th>
+    </tr>
+  </ng-template>
+  <ng-template #body let-seller>
+    <tr>
+      <td class="font-medium text-blue-800">
+        {{ seller.sellerName }}
+      </td>
+      <td>{{ seller.companyName }}</td>
+      <td>
+        <div class="flex flex-col justify-center leading-tight">
+          <span class="font-medium">{{ seller.contact }}</span>
+          <span class="text-xs text-gray-500">{{ seller.email }}</span>
+        </div>
+      </td>
+      <td>{{ seller.commission }}%</td>
+      <td class="whitespace-nowrap w-1">
+        <div class="flex items-center gap-3">
+          <app-button icon="fa fa-pencil" [btnClass]="'rounded-full w-10 h-10'" [outline]="true" severity="secondary" (onClick)="editSeller(seller)" tooltipPosition="left" pTooltip="Edit"></app-button>
+          <app-button icon="fa fa-trash" [btnClass]="'rounded-full w-10 h-10'" [outline]="true" severity="danger" (onClick)="deleteSeller(seller)" tooltipPosition="left" pTooltip="Delete"></app-button>
+        </div>
+      </td>
+    </tr>
+  </ng-template>
+  <ng-template #emptymessage>
+    <tr>
+      <td colspan="5">
+        <app-no-data message="No Sellers found for this event"></app-no-data>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+
+<p-toast></p-toast>
+
+<p-dialog [header]="'Edit Commission for ' + selectedSeller()?.sellerName" [(visible)]="showEditDialog" [modal]="true" [style]="{ width: '400px' }">
+  <div class="flex flex-col gap-4 mt-2">
+    <div class="flex flex-col gap-2">
+      <label for="commission" class="font-medium">Commission %</label>
+      <p-inputnumber id="commission" [(ngModel)]="newCommission" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2" class="w-full" styleClass="w-full" (onKeyDown)="$event.key === 'Enter' && saveCommission()"></p-inputnumber>
+    </div>
+  </div>
+  <ng-template #footer>
+    <div class="flex justify-end gap-2">
+      <app-button label="Cancel" [outline]="true" severity="secondary" (onClick)="showEditDialog.set(false)"></app-button>
+      <app-button label="Save" icon="fa fa-save" [loading]="saving()" (onClick)="saveCommission()"></app-button>
+    </div>
+  </ng-template>
+</p-dialog>

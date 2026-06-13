@@ -1,5 +1,12 @@
 <section [ngClass]="styleClass()" class="flex items-center justify-between">
-  <span class="text-xl font-bold">{{label()}}</span>
+  <div class="flex items-center gap-2">
+    @if (showBackButton()) {
+      <button (click)="back()" class="p-2 hover:bg-gray-100 rounded-full cursor-pointer transition-colors duration-200 text-gray-600" aria-label="Go back">
+        <i class="fa fa-arrow-left"></i>
+      </button>
+    }
+    <span class="text-xl font-bold">{{label()}}</span>
+  </div>
   <span>
     <ng-content></ng-content>
   </span>

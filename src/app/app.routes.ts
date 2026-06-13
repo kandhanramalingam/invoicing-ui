@@ -13,6 +13,14 @@ export const routes: Routes = [
         loadComponent: () => import("@pages/event-management/event-management").then(c => c.EventManagement)
       },
       {
+        path: 'events/:eventId/lots',
+        loadComponent: () => import("@pages/lots/lots").then(c => c.Lots)
+      },
+      {
+        path: 'events/:eventId/sellers',
+        loadComponent: () => import("@pages/sellers/sellers").then(c => c.Sellers)
+      },
+      {
         path: 'users',
         loadComponent: () => import("@pages/users/users").then(c => c.Users)
       },

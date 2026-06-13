@@ -22,12 +22,6 @@
           <p-sortIcon field="name" />
         </div>
       </th>
-      <th pSortableColumn="date">
-        <div class="flex items-center gap-2">
-          Date
-          <p-sortIcon field="date" />
-        </div>
-      </th>
       <th>Type</th>
       <th pSortableColumn="status">
         <div class="flex items-center gap-2">
@@ -35,25 +29,30 @@
           <p-sortIcon field="status" />
         </div>
       </th>
-      <th>Description</th>
       <th>Location</th>
-      <th>Actions</th>
+      <th class="w-1">Actions</th>
     </tr>
   </ng-template>
   <ng-template #body let-event>
     <tr>
-      <td>{{ event.name }}</td>
-      <td>{{ event.date | date: 'dd MMM yyyy' }}</td>
+      <td>
+        {{ event.auction?.nameOfAuction }}
+      </td>
       <td>
         <p-tag severity="secondary" [value]="event.type"></p-tag>
       </td>
       <td>
         <p-tag [severity]="getStatusSeverity(event.status)" [value]="event.status"></p-tag>
       </td>
-      <td>{{ event.description }}</td>
       <td>{{ event.location }}</td>
-      <td>
-        <div class="flex gap-2">
+      <td class="whitespace-nowrap w-1">
+        <div class="flex items-center gap-3">
+          <a [routerLink]="['/admin/events', event.id, 'sellers']" class="text-blue-600 hover:underline cursor-pointer">
+            Sellers
+          </a>
+          <a [routerLink]="['/admin/events', event.id, 'lots']" class="text-blue-600 hover:underline cursor-pointer">
+            Lots
+          </a>
           <app-button icon="fa fa-pencil" [btnClass]="'rounded-full w-10 h-10'" [outline]="true" severity="secondary" (onClick)="editEvent(event)" tooltipPosition="left" pTooltip="Edit"></app-button>
           <app-button icon="fa fa-trash" [btnClass]="'rounded-full w-10 h-10'" [outline]="true" severity="danger" (onClick)="deleteEvent(event)" tooltipPosition="left" pTooltip="Delete"></app-button>
         </div>
@@ -70,5 +69,5 @@
 </p-table>
 
 <p-drawer [closable]="true" [closeOnEscape]="true" appendTo="body" [header]="isEditMode() ? 'Edit Event' : 'New Event'" [style]="{ width: '80vw' }" [(visible)]="showEventForm" position="right">
-  <app-event-form [data]="formData()" [isEdit]="isEditMode()" (onSubmit)="onFormSubmit($event)"></app-event-form>
+  <app-event-form [data]="formData()" [isEdit]="isEditMode()" [loading]="formLoading()" (onSubmit)="onFormSubmit($event)"></app-event-form>
 </p-drawer>

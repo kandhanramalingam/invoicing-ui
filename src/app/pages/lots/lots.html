@@ -1,0 +1,112 @@
+<app-header [label]="'Lots for ' + (event()?.auction?.nameOfAuction || 'Event')" styleClass="mb-4" [showBackButton]="true">
+  <div class="flex items-center gap-4">
+    <div class="flex items-center gap-2 text-sm font-normal text-gray-600">
+      <span class="bg-gray-100 px-2 py-1 rounded">Auction ID: {{ event()?.auctionId }}</span>
+    </div>
+  </div>
+</app-header>
+
+<div class="flex items-center gap-5 mb-4">
+  <div class="flex items-end gap-2">
+    <label class="text-sm font-medium text-gray-700">Group by Buyer</label>
+    <p-toggleSwitch [ngModel]="groupByBuyer()" (ngModelChange)="toggleGroupByBuyer($event)"></p-toggleSwitch>
+  </div>
+  <div class="flex items-center gap-2">
+    <label class="text-sm font-medium text-gray-700">Group by Seller</label>
+    <p-toggleSwitch [ngModel]="groupBySeller()" (ngModelChange)="toggleGroupBySeller($event)"></p-toggleSwitch>
+  </div>
+</div>
+
+<p-table [value]="lots()" [loading]="loading()" size="small"
+         [lazy]="false"
+         [rows]="rows()" [totalRecords]="totalRecords()" [paginator]="false"
+         [rowsPerPageOptions]="[10, 20, 50]"
+         [first]="first()"
+         [showCurrentPageReport]="true"
+         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+         [rowGroupMode]="(groupByBuyer() || groupBySeller()) ? 'subheader' : undefined"
+         [groupRowsBy]="groupByBuyer() ? 'user_id' : (groupBySeller() ? 'seller_id' : undefined)"
+         [sortField]="groupByBuyer() ? 'user_id' : (groupBySeller() ? 'seller_id' : undefined)"
+         [sortOrder]="1"
+>
+  <ng-template #header>
+    <tr>
+      <th>Lot no</th>
+      <th>Description</th>
+      <th style="width: 8rem">Lot Type</th>
+      <th style="width: 5rem">Quantity</th>
+      <th style="width: 8rem">Sold Status</th>
+      <th style="width: 10rem">Buyer</th>
+      <th style="width: 6rem">Bidder No</th>
+      <th class="w-1">Actions</th>
+    </tr>
+  </ng-template>
+
+  <ng-template #groupheader let-lot>
+    <tr pRowGroupHeader>
+      <td colspan="9" class="bg-gray-50">
+        <div class="flex items-center justify-between w-full px-2">
+          @if (groupByBuyer()) {
+            <div class="flex items-center gap-4">
+              <span class="font-bold text-blue-800">Buyer: {{ (lot.firstName || '') + ' ' + (lot.lastName || '') }}</span>
+              @if (lot.bidder_no) {
+                <span class="text-sm text-gray-600 font-medium">(Bidder No: {{ lot.bidder_no }})</span>
+              }
+            </div>
+            <div class="flex gap-2">
+              <p-button label="Create Invoice" icon="fa fa-file-invoice-dollar" size="small" (onClick)="createInvoiceForBuyer(lot)"></p-button>
+              <p-button label="Create Quote" icon="fa fa-quote-right" size="small" (onClick)="createQuoteForBuyer(lot)" severity="secondary"></p-button>
+            </div>
+          } @else if (groupBySeller()) {
+            <div class="flex items-center gap-4">
+              <span class="font-bold text-green-800">Seller: {{ lot.seller_name || 'N/A' }}</span>
+            </div>
+            <div class="flex gap-2">
+              <p-button label="Create Invoice" icon="fa fa-file-invoice-dollar" size="small" (onClick)="createInvoiceForSeller(lot)"></p-button>
+              <p-button label="Create Quote" icon="fa fa-quote-right" size="small" (onClick)="createQuoteForSeller(lot)" severity="secondary"></p-button>
+            </div>
+          }
+        </div>
+      </td>
+    </tr>
+  </ng-template>
+
+  <ng-template #body let-lot>
+    <tr>
+      <td>{{ lot.mainLotNo || lot.mainlotno }}</td>
+      <td>{{ lot.description }}</td>
+      <td>Per {{ lot.price | titlecase }}</td>
+      <td>{{ lot.sumTotal ?? lot.sum_total }}</td>
+      <td>
+        @if ((lot.vmStatus || lot.VMStatus)?.toLowerCase() == 'sold') {
+          <span class="text-green-700">{{ lot.vmStatus || lot.VMStatus }}</span>
+        } @else if ((lot.vmStatus || lot.VMStatus)?.toLowerCase() == 's.t.c') {
+          <span class="text-yellow-600">{{ lot.vmStatus || lot.VMStatus }}</span>
+        } @else {
+          <span class="text-red-600">{{ lot.vmStatus || lot.VMStatus }}</span>
+        }
+      </td>
+      <td>
+        {{ (lot.firstName || '') + ' ' + (lot.lastName || '') }}
+      </td>
+      <td>
+        {{ lot.bidder_no }}
+      </td>
+      <td class="whitespace-nowrap w-1">
+        <div class="flex gap-3">
+          @if (!groupByBuyer() && !groupBySeller()) {
+            <p-button icon="fa fa-file-invoice-dollar" pTooltip="Create Invoice" tooltipPosition="left" size="small" (onClick)="showInvoice(lot)"></p-button>
+            <p-button icon="fa fa-quote-right" pTooltip="Create Quote" tooltipPosition="left" size="small" (onClick)="createQuote(lot)"></p-button>
+          }
+        </div>
+      </td>
+    </tr>
+  </ng-template>
+  <ng-template #emptymessage>
+    <tr>
+      <td colspan="9">
+        <app-no-data message="No Lots found for this event"></app-no-data>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>

@@ -3,5 +3,6 @@ export enum STORAGE_KEY {
     USER_DETAILS = 'UD',
     USER_EMAIL = 'UE',
     USER_ROLE = 'UR',
-    USER_NAME = 'UN'
+    USER_NAME = 'UN',
+    SELECTED_CATEGORY = 'SC'
 }
